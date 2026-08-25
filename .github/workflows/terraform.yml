@@ -73,15 +73,15 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Terraform Init
-        working-directory: monolithic_25082026
+        working-directory: environment/dev
         run: terraform init
 
       - name: Terraform Plan
-        working-directory: monolithic_25082026
+        working-directory: environment/dev
         run: terraform plan -out=dev.tfplan -var-file=terraform.tfvars
 
       - name: Generate Human Readable Plan
-        working-directory: monolithic_25082026
+        working-directory: environment/dev
         run: terraform show dev.tfplan > plan.txt
 
       - name: Upload Terraform Plan
