@@ -89,7 +89,7 @@ jobs:
         with:
           name: terraform-plan
           path: |
-            environment/dev.tfplan
+            environment/dev/dev.tfplan
             environment/dev/plan.txt
 
 
