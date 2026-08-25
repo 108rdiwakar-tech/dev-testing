@@ -38,15 +38,15 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Terraform Init
-        working-directory: monolithic_25082026
+        working-directory: environment\dev
         run: terraform init
 
       - name: Terraform Format Check
-        working-directory: monolithic_25082026
+        working-directory: environment\dev
         run: terraform fmt -check
 
       - name: Terraform Validate
-        working-directory: monolithic_25082026
+        working-directory: environment\dev
         run: terraform validate
 
 
