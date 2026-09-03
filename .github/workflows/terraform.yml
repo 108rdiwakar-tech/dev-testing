@@ -26,28 +26,58 @@ jobs:
 
     steps:
 
+      # --------------------------------------------------------
+      # Checkout Code
+      # --------------------------------------------------------
+
       - name: Checkout the code
         uses: actions/checkout@v4
 
+
+      # --------------------------------------------------------
+      # Setup Terraform
+      # --------------------------------------------------------
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+
+
+      # --------------------------------------------------------
+      # Azure Login
+      # --------------------------------------------------------
 
       - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+
+      # --------------------------------------------------------
+      # Terraform Init
+      # --------------------------------------------------------
+
       - name: Terraform Init
         working-directory: environment/dev
         run: terraform init
+
+
+      # --------------------------------------------------------
+      # Terraform Format Check
+      # --------------------------------------------------------
 
       - name: Terraform Format Check
         working-directory: environment/dev
         run: terraform fmt -check
 
+
+      # --------------------------------------------------------
+      # Terraform Validate
+      # --------------------------------------------------------
+
       - name: Terraform Validate
         working-directory: environment/dev
         run: terraform validate
+
 
 
   # ============================================================
@@ -61,28 +91,62 @@ jobs:
 
     steps:
 
+      # --------------------------------------------------------
+      # Checkout Code
+      # --------------------------------------------------------
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
+
+      # --------------------------------------------------------
+      # Setup Terraform
+      # --------------------------------------------------------
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+
+
+      # --------------------------------------------------------
+      # Azure Login
+      # --------------------------------------------------------
 
       - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+
+      # --------------------------------------------------------
+      # Terraform Init
+      # --------------------------------------------------------
+
       - name: Terraform Init
         working-directory: environment/dev
         run: terraform init
+
+
+      # --------------------------------------------------------
+      # Terraform Plan
+      # --------------------------------------------------------
 
       - name: Terraform Plan
         working-directory: environment/dev
         run: terraform plan -out=dev.tfplan -var-file=terraform.tfvars
 
+
+      # --------------------------------------------------------
+      # Generate Human Readable Plan
+      # --------------------------------------------------------
+
       - name: Generate Human Readable Plan
         working-directory: environment/dev
         run: terraform show dev.tfplan > plan.txt
+
+
+      # --------------------------------------------------------
+      # Upload Terraform Plan
+      # --------------------------------------------------------
 
       - name: Upload Terraform Plan
         uses: actions/upload-artifact@v4
@@ -93,15 +157,18 @@ jobs:
             environment/dev/plan.txt
 
 
+
   # ============================================================
   # 3. TERRAFORM APPLY
-  # ONLY AFTER MERGE TO MAIN
+  # ONLY AFTER MERGE / PUSH TO MAIN
   # ============================================================
 
   terraform_apply:
     name: Terraform Apply
+
     needs: terraform_plan_preview
 
+    # Apply ONLY when code is pushed to main
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
@@ -110,24 +177,53 @@ jobs:
 
     steps:
 
+      # --------------------------------------------------------
+      # Checkout Code
+      # --------------------------------------------------------
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
+
+      # --------------------------------------------------------
+      # Setup Terraform
+      # --------------------------------------------------------
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+
+
+      # --------------------------------------------------------
+      # Azure Login
+      # --------------------------------------------------------
 
       - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+
+      # --------------------------------------------------------
+      # Terraform Init
+      # --------------------------------------------------------
+
       - name: Terraform Init
         working-directory: environment/dev
         run: terraform init
 
+
+      # --------------------------------------------------------
+      # Create Plan for Apply
+      # --------------------------------------------------------
+
       - name: Terraform Plan
         working-directory: environment/dev
         run: terraform plan -out=dev.tfplan -var-file=terraform.tfvars
+
+
+      # --------------------------------------------------------
+      # Terraform Apply
+      # --------------------------------------------------------
 
       - name: Terraform Apply
         working-directory: environment/dev
